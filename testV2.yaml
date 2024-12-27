@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: Wash Genie APIs
+  version: 1.0.0
+  description: API for retrieving cloth categories and their details.
+
+tags:
+  - name: WashGenie
+paths:
+  /deviceMgmt/v2/clothList:
+    get:
+      tags: 
+      - WashGenie
+      summary: Get all cloth categories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClothCategoriesResponse'
+
+  /deviceMgmt/v2/washgenie:
+    post:
+      tags: 
+      - WashGenie
+      summary: Get suggested wash program from genie
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Array of category IDs to filter cloth categories
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryIdsRequest'
+      responses:
+        '200':
+          description: Successful response with filtered cloth categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClothCategoriesResponse'
+        '400':
+          description: Bad Request - Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ClothCategoriesResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "success"
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          example: 1
+        categoryName:
+          type: string
+          example: "Daily Wear"
+        clothList:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClothItem'
+
+    ClothItem:
+      type: object
+      properties:
+        imageName:
+          type: string
+          example: "Shirt"
+        imageUrl:
+          type: string
+          example: "shirt.png"
+
+    CategoryIdsRequest:
+      type: object
+      properties:
+        categoryIds:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+      required:
+        - categoryIds
+
+    ErrorResponse:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Invalid category IDs provided."
